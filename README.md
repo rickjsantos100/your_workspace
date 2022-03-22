@@ -17,6 +17,6 @@ samples, guidance on mobile development, and a full API reference.
 
 # Setting up the environment
 
-[installation](https://docs.flutter.dev/get-started/install)
-[Setting up vscode](https://docs.flutter.dev/get-started/editor?tab=vscode)
-[Test app](https://docs.flutter.dev/get-started/test-drive?tab=vscode)
+- [installation](https://docs.flutter.dev/get-started/install)
+- [Setting up vscode](https://docs.flutter.dev/get-started/editor?tab=vscode)
+- [Test app](https://docs.flutter.dev/get-started/test-drive?tab=vscode)
