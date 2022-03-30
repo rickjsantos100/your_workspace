@@ -27,3 +27,10 @@ samples, guidance on mobile development, and a full API reference.
 * Figure out what is going wrong with grove 
 * Use the falcon web framework to create the REST API (example)[https://docs.dataplicity.com/docs/control-gpios-using-rest-api]
 * Create the database, either by using a json file system or using tinyDB (tinyDB)[https://pypi.org/project/tinydb/]
+* Endpoints: 
+  * Create user 
+  * Update user 
+  * Create Team 
+  * Update Team 
+  
+  *  
