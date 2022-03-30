@@ -20,3 +20,10 @@ samples, guidance on mobile development, and a full API reference.
 - [installation](https://docs.flutter.dev/get-started/install)
 - [Setting up vscode](https://docs.flutter.dev/get-started/editor?tab=vscode)
 - [Test app](https://docs.flutter.dev/get-started/test-drive?tab=vscode)
+
+
+# Tasks TODO
+
+* Figure out what is going wrong with grove 
+* Use the falcon web framework to create the REST API (example)[https://docs.dataplicity.com/docs/control-gpios-using-rest-api]
+* Create the database, either by using a json file system or using tinyDB (tinyDB)[https://pypi.org/project/tinydb/]
