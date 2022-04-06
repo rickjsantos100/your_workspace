@@ -1,5 +1,17 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:your_workspace/widgets/playlist_selector.dart';
 import 'package:your_workspace/widgets/profile_selector.dart';
+import 'package:http/http.dart' as http;
+
+import '../constants.dart';
+
+class UglyState {
+  String? accessToken;
+  String? test;
+}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -20,8 +32,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
-  late TabController _tabController;
-
   // void _incrementCounter() {
   //   setState(() {
   //     // This call to setState tells the Flutter framework that something has
@@ -33,10 +43,30 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   //   });
   // }
 
+  double _lightsValue = 1;
+  double _temperatureValue = 22;
+  String _accessToken = 'no_token';
+
+  UglyState uglyState = UglyState();
+
   @override
-  void initState() {
+  initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+
+    http.post(Uri.parse('https://accounts.spotify.com/api/token'), headers: {
+      HttpHeaders.authorizationHeader: CLIENT_CREDENTIALS_AUTH,
+      HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
+    }, body: {
+      'grant_type': 'client_credentials'
+    }).then((responseHTTP) {
+      dynamic response = jsonDecode(responseHTTP.body);
+      setState(() {
+        _accessToken = response['access_token'];
+        print('ddd');
+      });
+    });
+
+    // TODO: fill up the access token var with the correct value, make sure the playlist selector is only shown when the value is set
   }
 
   @override
@@ -49,47 +79,87 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     // than having to individually change instances of widgets.
     return Scaffold(
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          child: Container(
+              margin: const EdgeInsets.only(left: 15, top: 40),
+              child: Column(
+                // Column is also a layout widget. It takes a list of children and
+                // arranges them vertically. By default, it sizes itself to fit its
+                // children horizontally, and tries to be as tall as its parent.
+                //
+                // Invoke "debug painting" (press "p" in the console, choose the
+                // "Toggle Debug Paint" action from the Flutter Inspector in Android
+                // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
+                // to see the wireframe for each widget.
+                //
+                // Column has various properties to control how it sizes itself and
+                // how it positions its children. Here we use mainAxisAlignment to
+                // center the children vertically; the main axis here is the vertical
+                // axis because Columns are vertical (the cross axis would be
+                // horizontal).
 
-          // mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Row(
-              children: const [
-                ProfileSelector(),
-                ProfileSelector(),
-                ProfileSelector()
-              ],
-            ),
-            Column(
-              children: [
-                const Text(
-                  'You have pushed the button this many  many many times:',
-                ),
-                Text(
-                  '3',
-                  style: Theme.of(context).textTheme.headline4,
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
+                // mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Row(
+                    children: [
+                      ProfileSelector(onPressed: () => print('clicked')),
+                      ProfileSelector(onPressed: () => print('clicked')),
+                      ProfileSelector(onPressed: () => print('clicked'))
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+                  Column(
+                    children: [
+                      Row(
+                        children: [
+                          Text('Lights: ${_lightsValue.round().toString()}'),
+                          Expanded(
+                              child: Slider(
+                            value: _lightsValue,
+                            max: 3,
+                            divisions: 3,
+                            label: _lightsValue.round().toString(),
+                            onChanged: (double value) {
+                              setState(() {
+                                _lightsValue = value;
+                              });
+                            },
+                          ))
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                              'Temperature: ${_temperatureValue.round().toString()}'),
+                          Expanded(
+                              child: Slider(
+                            value: _temperatureValue,
+                            max: 40,
+                            min: 0,
+                            label: _temperatureValue.round().toString(),
+                            onChanged: (double value) {
+                              setState(() {
+                                _temperatureValue = value;
+                              });
+                            },
+                          ))
+                        ],
+                      ),
+                      PlaylistSelector(
+                        accessToken: _accessToken,
+                      ),
+                      const Text(
+                        'You have pushed the button this many  many many times:',
+                      ),
+                      Text(
+                        '36',
+                        style: Theme.of(context).textTheme.headline4,
+                      ),
+                    ],
+                  )
+                ],
+              ))),
     );
   }
 }
