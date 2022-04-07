@@ -5,25 +5,27 @@ class ProfileSelector extends StatelessWidget {
     Key? key,
     this.avatarUrl,
     this.isSelected = false,
+    this.isTeam = false,
     required this.onPressed,
   }) : super(key: key);
 
   final String? avatarUrl;
   final bool isSelected;
+  final bool isTeam;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
+          primary: isSelected ? Colors.green : Colors.blue,
           shape: const CircleBorder(),
           padding: const EdgeInsets.all(8),
           elevation: 1),
-      child: const CircleAvatar(
-          backgroundImage: AssetImage('images/default_profile.png')
-          //  NetworkImage(
-          //     'https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dmlld3xlbnwwfHwwfHw%3D&w=1000&q=80'),
-          ),
+      child: CircleAvatar(
+          backgroundImage: isTeam
+              ? const AssetImage('images/group.png')
+              : const AssetImage('images/user.png')),
       onPressed: () => onPressed(),
     );
 

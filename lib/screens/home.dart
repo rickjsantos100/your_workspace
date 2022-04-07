@@ -2,16 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:your_workspace/widgets/playlist_selector.dart';
 import 'package:your_workspace/widgets/profile_selector.dart';
 import 'package:http/http.dart' as http;
 
 import '../constants.dart';
-
-class UglyState {
-  String? accessToken;
-  String? test;
-}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -46,8 +42,22 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   double _lightsValue = 1;
   double _temperatureValue = 22;
   String _accessToken = 'no_token';
+  dynamic playlists = [];
 
-  UglyState uglyState = UglyState();
+  // Object type
+  /*
+  {
+    username: 
+    lightValue:
+    tempValue
+    spotifyId:
+    spotifyPlaylistId:
+  }
+  */
+  var users = [];
+  int userIndex = 0;
+  String spotifyId = 'none';
+  String spotifyPlaylistId = 'none';
 
   @override
   initState() {
@@ -62,11 +72,85 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       dynamic response = jsonDecode(responseHTTP.body);
       setState(() {
         _accessToken = response['access_token'];
-        print('ddd');
+        switchUser(userIndex);
       });
     });
 
-    // TODO: fill up the access token var with the correct value, make sure the playlist selector is only shown when the value is set
+    // MOCK getting info from backend
+    users = [
+      {
+        'username': 'aaaa',
+        'lightValue': 1,
+        'temperatureValue': 33,
+        'spotifyId': 't8awcrzi144aabwemfihklc7m',
+        'spotifyPlaylistId': '266opC1QggK58tOCf6iTJa',
+      },
+      {
+        'username': 'bbbbbbb',
+        'lightValue': 3,
+        'temperatureValue': 27,
+        'members': ['aaaa']
+      },
+    ];
+  }
+
+  switchUser(index) {
+    setState(() {
+      if (userIndex != index) {
+        userIndex = index;
+      }
+
+      _lightsValue = users[index]['lightValue'].toDouble();
+      _temperatureValue = users[index]['temperatureValue'].toDouble();
+
+      if (users[index]['spotifyId'] != null) {
+        spotifyId = users[index]['spotifyId'];
+
+        getUserPlaylists(spotifyId);
+
+        if (users[index]['spotifyPlaylistId'] != null) {
+          spotifyPlaylistId = users[index]['spotifyPlaylistId'];
+        } else {
+          spotifyPlaylistId = 'none';
+        }
+      } else {
+        resetSpotifyInfo();
+      }
+    });
+  }
+
+  resetSpotifyInfo() {
+    setState(() {
+      spotifyPlaylistId = 'none';
+      playlists = [];
+      spotifyId = 'none';
+    });
+  }
+
+  List<DropdownMenuItem<String>> get playlistsItems {
+    List<DropdownMenuItem<String>> menuItems = [
+      for (var playlist in playlists)
+        DropdownMenuItem(child: Text(playlist['name']), value: playlist['id']),
+    ];
+    return menuItems;
+  }
+
+  getUserPlaylists(String spotifyId) async {
+    Response responseHTTP = await http.get(
+        Uri.parse('https://api.spotify.com/v1/users/$spotifyId/playlists'),
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer $_accessToken',
+          HttpHeaders.contentTypeHeader: 'application/json',
+        });
+
+    dynamic response = jsonDecode(responseHTTP.body);
+    setState(() {
+      playlists = response['items'];
+      if (spotifyPlaylistId == 'none') {
+        spotifyPlaylistId = playlists[0]['id'];
+      }
+      spotifyId = spotifyId;
+    });
   }
 
   @override
@@ -103,9 +187,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 children: <Widget>[
                   Row(
                     children: [
-                      ProfileSelector(onPressed: () => print('clicked')),
-                      ProfileSelector(onPressed: () => print('clicked')),
-                      ProfileSelector(onPressed: () => print('clicked'))
+                      for (var i = 0; i < users.length; i++)
+                        ProfileSelector(
+                            isTeam: users[i]['members'] != null,
+                            isSelected: i == userIndex,
+                            onPressed: () => {switchUser(i)}),
                     ],
                   ),
                   const SizedBox(height: 30),
@@ -146,16 +232,46 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                           ))
                         ],
                       ),
-                      PlaylistSelector(
-                        accessToken: _accessToken,
-                      ),
-                      const Text(
-                        'You have pushed the button this many  many many times:',
-                      ),
-                      Text(
-                        '36',
-                        style: Theme.of(context).textTheme.headline4,
-                      ),
+                      if (_accessToken != 'no_token')
+
+                        //  =========================================== Playlist Selector ============================================
+                        // PlaylistSelector(
+                        //   accessToken: _accessToken,
+                        // ),
+                        if (spotifyId != 'none')
+                          if (playlists.length > 0)
+                            Row(
+                              children: [
+                                DropdownButton(
+                                  value: spotifyPlaylistId,
+                                  items: playlistsItems,
+                                  onChanged: (String? value) {
+                                    setState(() {
+                                      spotifyPlaylistId = value!;
+                                    });
+                                  },
+                                ),
+                                TextButton(
+                                  child: Text(
+                                    'change user',
+                                  ),
+                                  onPressed: () {
+                                    resetSpotifyInfo();
+                                  },
+                                ),
+                              ],
+                            )
+                          else
+                            TextField(
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: 'Enter your spotify username',
+                              ),
+                              onSubmitted: (userId) {
+                                getUserPlaylists(userId);
+                              },
+                            )
+                      //  =========================================== Playlist Selector ============================================
                     ],
                   )
                 ],

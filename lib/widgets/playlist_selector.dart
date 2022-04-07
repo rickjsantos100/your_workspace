@@ -3,8 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
-import '../constants.dart';
+import 'package:http/http.dart';
 
 class PlaylistSelector extends StatefulWidget {
   PlaylistSelector({Key? key, this.userId = 'none', required this.accessToken})
@@ -18,10 +17,21 @@ class PlaylistSelector extends StatefulWidget {
 }
 
 class _PlaylistSelectorState extends State<PlaylistSelector> {
-  getUserPlaylists(String userId) async {
-    print('testing, ${widget.accessToken}');
+  dynamic playlists = [];
 
-    // TODO: with the received access token and user ID get the corresponding playlists
+  getUserPlaylists(String userId) async {
+    widget.userId = userId;
+
+    Response responseHTTP = await http.get(
+        Uri.parse('https://api.spotify.com/v1/users/$userId/playlists'),
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer ${widget.accessToken}',
+          HttpHeaders.contentTypeHeader: 'application/json',
+        });
+
+    dynamic response = jsonDecode(responseHTTP.body);
+    playlists = response['items'];
+    print('aaa');
   }
 
   @override
@@ -35,7 +45,11 @@ class _PlaylistSelectorState extends State<PlaylistSelector> {
     //   onPressed: () => {widget.userId = 'newId'},
     // );
 
-    return TextField(
+    return
+        // Row(
+        // children: [
+        // if (widget.userId != 'none')
+        TextField(
       decoration: const InputDecoration(
         border: OutlineInputBorder(),
         hintText: 'Enter your spotify username',
@@ -44,5 +58,9 @@ class _PlaylistSelectorState extends State<PlaylistSelector> {
         getUserPlaylists(userId);
       },
     );
+    // Image.network(
+    //     'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg')
+    //   ],
+    // );
   }
 }
