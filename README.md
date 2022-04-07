@@ -34,3 +34,17 @@ display digitos https://mauser.pt/catalog/product_info.php?cPath=1667_2604_2609&
 grove docs https://wiki.seeedstudio.com/Grove-Red_LED/
 grove light https://mauser.pt/catalog/product_info.php?cPath=1667_2604_2686&products_id=096-6642
 base https://mauser.pt/catalog/product_info.php?cPath=1667_2620_2961&products_id=096-6830
+
+# Tasks TODO
+
+- Figure out what is going wrong with grove
+- Use the falcon web framework to create the REST API (example)[https://docs.dataplicity.com/docs/control-gpios-using-rest-api]
+- Create the database, either by using a json file system or using tinyDB (tinyDB)[https://pypi.org/project/tinydb/]
+- Endpoints:
+
+  - Create user
+  - Update user
+  - Create Team
+  - Update Team
+
+  -
