@@ -5,6 +5,7 @@ class ProfileSelector extends StatelessWidget {
     Key? key,
     this.avatarUrl,
     this.isSelected = false,
+    this.isAdd = false,
     this.isTeam = false,
     required this.onPressed,
   }) : super(key: key);
@@ -12,6 +13,7 @@ class ProfileSelector extends StatelessWidget {
   final String? avatarUrl;
   final bool isSelected;
   final bool isTeam;
+  final bool isAdd;
   final VoidCallback onPressed;
 
   @override
@@ -23,9 +25,11 @@ class ProfileSelector extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           elevation: 1),
       child: CircleAvatar(
-          backgroundImage: isTeam
-              ? const AssetImage('images/group.png')
-              : const AssetImage('images/user.png')),
+          backgroundImage: isAdd
+              ? const AssetImage('images/user_add.png')
+              : isTeam
+                  ? const AssetImage('images/group.png')
+                  : const AssetImage('images/user.png')),
       onPressed: () => onPressed(),
     );
 
